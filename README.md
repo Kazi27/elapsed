@@ -1,30 +1,9 @@
 # E-lapsed
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
-
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/kazisameen2702-gmailcoms-projects/v0-time-since-tracker)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/sY1ttcJAqpQ)
-
-## Overview
-
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
-
-## Deployment
-
-Your project is live at:
-
-**[https://vercel.com/kazisameen2702-gmailcoms-projects/v0-time-since-tracker](https://vercel.com/kazisameen2702-gmailcoms-projects/v0-time-since-tracker)**
-
-## Build your app
-
-Continue building your app on:
-
-**[https://v0.dev/chat/projects/sY1ttcJAqpQ](https://v0.dev/chat/projects/sY1ttcJAqpQ)**
-
-## How It Works
-
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+- Create an account (dont login with google, doesnt work)
+- Check email and click confirm link (error page == success)
+- Come back to site and sign in with chosen email and password
+- Add tracker
+  - You can also reset the tracker, change the name, edit the time or even delete it
+  - Everything is saved to your account only
+  - Add more than one tracker to be able to sort and see the carts do a bubble sort
