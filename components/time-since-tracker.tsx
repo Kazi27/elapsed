@@ -277,31 +277,39 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
                   avoidCollisions={true}
                   collisionPadding={20}
                 >
-                  <div className="max-h-[70vh] overflow-y-auto">
+                  <div className="max-h-[80vh] overflow-y-auto">
                     <div className="p-4 space-y-4">
                       <div>
-                        <h4 className="text-sm font-medium mb-3">Date</h4>
-                        <CalendarComponent
-                          mode="single"
-                          selected={startDate}
-                          onSelect={(date) => {
-                            if (date) {
-                              const newDate = new Date(startDate)
-                              newDate.setFullYear(date.getFullYear(), date.getMonth(), date.getDate())
-                              onDateChange(id, newDate)
-                            }
-                          }}
-                          initialFocus
-                          className="rounded-md border-0"
-                        />
+                        <h4 className="text-sm font-medium mb-3 text-slate-900 dark:text-slate-100">Date</h4>
+                        <div className="border rounded-lg p-2 bg-white dark:bg-slate-800">
+                          <CalendarComponent
+                            mode="single"
+                            selected={startDate}
+                            onSelect={(date) => {
+                              if (date) {
+                                const newDate = new Date(startDate)
+                                newDate.setFullYear(date.getFullYear(), date.getMonth(), date.getDate())
+                                onDateChange(id, newDate)
+                              }
+                            }}
+                            initialFocus
+                            className="rounded-md border-0"
+                            captionLayout="dropdown-buttons"
+                            fromYear={1900}
+                            toYear={2030}
+                          />
+                        </div>
                       </div>
 
                       <div className="border-t pt-4">
-                        <h4 className="text-sm font-medium mb-3">Time</h4>
+                        <h4 className="text-sm font-medium mb-3 text-slate-900 dark:text-slate-100">Time</h4>
                         <div className="space-y-3">
                           <div className="grid grid-cols-2 gap-3">
                             <div>
-                              <label htmlFor={`hours-${id}`} className="text-xs font-medium block mb-1">
+                              <label
+                                htmlFor={`hours-${id}`}
+                                className="text-xs font-medium block mb-1 text-slate-700 dark:text-slate-300"
+                              >
                                 Hours
                               </label>
                               <Input
@@ -320,7 +328,10 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
                               />
                             </div>
                             <div>
-                              <label htmlFor={`minutes-${id}`} className="text-xs font-medium block mb-1">
+                              <label
+                                htmlFor={`minutes-${id}`}
+                                className="text-xs font-medium block mb-1 text-slate-700 dark:text-slate-300"
+                              >
                                 Minutes
                               </label>
                               <Input
@@ -342,7 +353,10 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
 
                           <div className="grid grid-cols-2 gap-3">
                             <div>
-                              <label htmlFor={`seconds-${id}`} className="text-xs font-medium block mb-1">
+                              <label
+                                htmlFor={`seconds-${id}`}
+                                className="text-xs font-medium block mb-1 text-slate-700 dark:text-slate-300"
+                              >
                                 Seconds
                               </label>
                               <Input
@@ -361,7 +375,10 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
                               />
                             </div>
                             <div>
-                              <label htmlFor={`ampm-${id}`} className="text-xs font-medium block mb-1">
+                              <label
+                                htmlFor={`ampm-${id}`}
+                                className="text-xs font-medium block mb-1 text-slate-700 dark:text-slate-300"
+                              >
                                 AM/PM
                               </label>
                               <Select
