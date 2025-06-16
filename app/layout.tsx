@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "Elapsed - Event Tracker",
+  title: "E-lapsed - Event Tracker",
   description: "Track how much time has passed since important events",
   generator: "v0.dev",
 }

@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
 
     // Check if the message is "connect"
     if (messageBody === "connect") {
-      const responseMessage = `🎉 Welcome to Elapsed!\n\nStart tracking your important moments:\n${process.env.NEXT_PUBLIC_SITE_URL || "https://your-app.vercel.app"}\n\nCreate an account to save your trackers and share them with friends! ⏰`
+      const responseMessage = `🎉 Welcome to E-lapsed!\n\nStart tracking your important moments:\n${process.env.NEXT_PUBLIC_SITE_URL || "https://your-app.vercel.app"}\n\nCreate an account to save your trackers and share them with friends! ⏰`
 
       // Twilio expects TwiML response
       const twimlResponse = `<?xml version="1.0" encoding="UTF-8"?>
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Default response for other messages
-    const defaultResponse = `👋 Hi there! Text "connect" to get started with Elapsed - your personal time tracking app!`
+    const defaultResponse = `👋 Hi there! Text "connect" to get started with E-lapsed - your personal time tracking app!`
 
     const twimlResponse = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>

@@ -92,7 +92,7 @@ export function AuthForm() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Elapsed</CardTitle>
+          <CardTitle className="text-2xl">E-lapsed</CardTitle>
           <CardDescription>Sign in to save your time trackers</CardDescription>
         </CardHeader>
         <CardContent>
