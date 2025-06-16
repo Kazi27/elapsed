@@ -1,0 +1,491 @@
+"use client"
+
+import type React from "react"
+
+import { useState, useEffect, useRef } from "react"
+import { Calendar, Trash2, Share2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent } from "@/components/ui/card"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar as CalendarComponent } from "@/components/ui/calendar"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { FlipDigit } from "@/components/flip-digit"
+import { useToast } from "@/hooks/use-toast"
+
+interface TimeSinceTrackerProps {
+  id: string
+  name: string
+  startDate: Date
+  onNameChange: (id: string, name: string) => void
+  onDateChange: (id: string, date: Date) => void
+  onRemove: (id: string) => void
+}
+
+export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChange, onRemove }: TimeSinceTrackerProps) {
+  const [elapsed, setElapsed] = useState<{
+    years: number
+    months: number
+    days: number
+    hours: number
+    minutes: number
+    seconds: number
+  }>({
+    years: 0,
+    months: 0,
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  })
+
+  const [isEditing, setIsEditing] = useState(false)
+  const [editingName, setEditingName] = useState(name)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const { toast } = useToast()
+
+  // Convert 24-hour format to 12-hour format
+  const get12HourTime = (date: Date) => {
+    let hours = date.getHours()
+    const ampm = hours >= 12 ? "PM" : "AM"
+    hours = hours % 12
+    hours = hours ? hours : 12 // the hour '0' should be '12'
+    return { hours, ampm }
+  }
+
+  const { hours: hours12, ampm } = get12HourTime(startDate)
+  const [timeFormat, setTimeFormat] = useState({
+    hours: hours12,
+    minutes: startDate.getMinutes(),
+    seconds: startDate.getSeconds(),
+    ampm: ampm,
+  })
+
+  useEffect(() => {
+    const { hours: newHours12, ampm: newAmPm } = get12HourTime(startDate)
+    setTimeFormat({
+      hours: newHours12,
+      minutes: startDate.getMinutes(),
+      seconds: startDate.getSeconds(),
+      ampm: newAmPm,
+    })
+  }, [startDate])
+
+  useEffect(() => {
+    setEditingName(name)
+  }, [name])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date()
+      const diff = now.getTime() - startDate.getTime()
+
+      // Calculate time units
+      const seconds = Math.floor((diff / 1000) % 60)
+      const minutes = Math.floor((diff / (1000 * 60)) % 60)
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24)
+
+      // Approximate days, months, years
+      const days = Math.floor((diff / (1000 * 60 * 60 * 24)) % 30)
+      const months = Math.floor((diff / (1000 * 60 * 60 * 24 * 30)) % 12)
+      const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365))
+
+      setElapsed({ years, months, days, hours, minutes, seconds })
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [startDate])
+
+  const handleEditClick = () => {
+    setIsEditing(true)
+    setTimeout(() => {
+      inputRef.current?.focus()
+      inputRef.current?.select()
+    }, 0)
+  }
+
+  const handleBlur = () => {
+    setIsEditing(false)
+    if (editingName.trim() !== name) {
+      onNameChange(id, editingName.trim() || "Untitled")
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      setIsEditing(false)
+      if (editingName.trim() !== name) {
+        onNameChange(id, editingName.trim() || "Untitled")
+      }
+    } else if (e.key === "Escape") {
+      setEditingName(name)
+      setIsEditing(false)
+    }
+  }
+
+  const updateTime = (newTimeFormat: typeof timeFormat) => {
+    // Convert 12-hour format back to 24-hour format
+    let hours24 = newTimeFormat.hours
+    if (newTimeFormat.ampm === "PM" && hours24 < 12) {
+      hours24 += 12
+    } else if (newTimeFormat.ampm === "AM" && hours24 === 12) {
+      hours24 = 0
+    }
+
+    const newDate = new Date(startDate)
+    newDate.setHours(hours24, newTimeFormat.minutes, newTimeFormat.seconds)
+    onDateChange(id, newDate)
+  }
+
+  const formatElapsedTime = () => {
+    const parts = []
+
+    if (elapsed.years > 0) {
+      parts.push(`${elapsed.years} year${elapsed.years === 1 ? "" : "s"}`)
+    }
+    if (elapsed.months > 0) {
+      parts.push(`${elapsed.months} month${elapsed.months === 1 ? "" : "s"}`)
+    }
+    if (elapsed.days > 0) {
+      parts.push(`${elapsed.days} day${elapsed.days === 1 ? "" : "s"}`)
+    }
+    if (elapsed.hours > 0) {
+      parts.push(`${elapsed.hours} hour${elapsed.hours === 1 ? "" : "s"}`)
+    }
+    if (elapsed.minutes > 0) {
+      parts.push(`${elapsed.minutes} minute${elapsed.minutes === 1 ? "" : "s"}`)
+    }
+
+    // Always show seconds if nothing else
+    if (parts.length === 0 || elapsed.seconds > 0) {
+      parts.push(`${elapsed.seconds} second${elapsed.seconds === 1 ? "" : "s"}`)
+    }
+
+    // Join with commas and "and" for the last item
+    if (parts.length === 1) {
+      return parts[0]
+    } else if (parts.length === 2) {
+      return parts.join(" and ")
+    } else {
+      return parts.slice(0, -1).join(", ") + ", and " + parts[parts.length - 1]
+    }
+  }
+
+  const handleShare = async () => {
+    const shareText = `🕐 It's been ${formatElapsedTime()} since "${name}"!\n\nStarted on ${startDate.toLocaleDateString()} at ${startDate.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true })}\n\nShared from Time Since ⏰`
+
+    // Check if Web Share API is supported (mainly mobile devices)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Time Since: ${name}`,
+          text: shareText,
+        })
+
+        toast({
+          title: "Shared successfully!",
+          description: "Your tracker has been shared",
+        })
+      } catch (error) {
+        // User cancelled sharing or error occurred
+        if ((error as Error).name !== "AbortError") {
+          // Fallback to clipboard
+          await copyToClipboard(shareText)
+        }
+      }
+    } else {
+      // Fallback to clipboard for desktop
+      await copyToClipboard(shareText)
+    }
+  }
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      toast({
+        title: "Copied to clipboard!",
+        description: "Share text has been copied. Paste it anywhere to share!",
+      })
+    } catch (error) {
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea")
+      textArea.value = text
+      document.body.appendChild(textArea)
+      textArea.select()
+      document.execCommand("copy")
+      document.body.removeChild(textArea)
+
+      toast({
+        title: "Copied to clipboard!",
+        description: "Share text has been copied. Paste it anywhere to share!",
+      })
+    }
+  }
+
+  return (
+    <Card className="overflow-hidden border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-500 hover:translate-y-[-4px] hover:border-blue-500/30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm w-full">
+      <CardContent className="p-6">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            {isEditing ? (
+              <Input
+                ref={inputRef}
+                value={editingName}
+                onChange={(e) => setEditingName(e.target.value)}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
+                className="font-medium text-lg"
+                placeholder="Enter event name"
+              />
+            ) : (
+              <h2
+                className="font-medium text-lg cursor-pointer hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                onClick={handleEditClick}
+              >
+                {name}
+              </h2>
+            )}
+
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8 hover:scale-110 transition-transform hover:shadow-lg hover:shadow-purple-500/25 hover:border-purple-500/50"
+                onClick={handleShare}
+                title="Share tracker"
+              >
+                <Share2 className="h-4 w-4" />
+                <span className="sr-only">Share tracker</span>
+              </Button>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8 hover:scale-110 transition-transform hover:shadow-lg hover:shadow-blue-500/25"
+                  >
+                    <Calendar className="h-4 w-4" />
+                    <span className="sr-only">Change date and time</span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-80 p-0 z-[9999]"
+                  align="end"
+                  side="top"
+                  sideOffset={8}
+                  avoidCollisions={true}
+                  collisionPadding={20}
+                >
+                  <div className="max-h-[70vh] overflow-y-auto">
+                    <div className="p-4 space-y-4">
+                      <div>
+                        <h4 className="text-sm font-medium mb-3">Date</h4>
+                        <CalendarComponent
+                          mode="single"
+                          selected={startDate}
+                          onSelect={(date) => {
+                            if (date) {
+                              const newDate = new Date(startDate)
+                              newDate.setFullYear(date.getFullYear(), date.getMonth(), date.getDate())
+                              onDateChange(id, newDate)
+                            }
+                          }}
+                          initialFocus
+                          className="rounded-md border-0"
+                        />
+                      </div>
+
+                      <div className="border-t pt-4">
+                        <h4 className="text-sm font-medium mb-3">Time</h4>
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label htmlFor={`hours-${id}`} className="text-xs font-medium block mb-1">
+                                Hours
+                              </label>
+                              <Input
+                                id={`hours-${id}`}
+                                type="number"
+                                min="1"
+                                max="12"
+                                value={timeFormat.hours}
+                                onChange={(e) => {
+                                  const hours = Math.min(12, Math.max(1, Number.parseInt(e.target.value) || 1))
+                                  const newTimeFormat = { ...timeFormat, hours }
+                                  setTimeFormat(newTimeFormat)
+                                  updateTime(newTimeFormat)
+                                }}
+                                className="w-full h-9 focus:ring-2 focus:ring-blue-500/50 focus:shadow-lg focus:shadow-blue-500/25 transition-all"
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor={`minutes-${id}`} className="text-xs font-medium block mb-1">
+                                Minutes
+                              </label>
+                              <Input
+                                id={`minutes-${id}`}
+                                type="number"
+                                min="0"
+                                max="59"
+                                value={timeFormat.minutes}
+                                onChange={(e) => {
+                                  const minutes = Math.min(59, Math.max(0, Number.parseInt(e.target.value) || 0))
+                                  const newTimeFormat = { ...timeFormat, minutes }
+                                  setTimeFormat(newTimeFormat)
+                                  updateTime(newTimeFormat)
+                                }}
+                                className="w-full h-9 focus:ring-2 focus:ring-blue-500/50 focus:shadow-lg focus:shadow-blue-500/25 transition-all"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label htmlFor={`seconds-${id}`} className="text-xs font-medium block mb-1">
+                                Seconds
+                              </label>
+                              <Input
+                                id={`seconds-${id}`}
+                                type="number"
+                                min="0"
+                                max="59"
+                                value={timeFormat.seconds}
+                                onChange={(e) => {
+                                  const seconds = Math.min(59, Math.max(0, Number.parseInt(e.target.value) || 0))
+                                  const newTimeFormat = { ...timeFormat, seconds }
+                                  setTimeFormat(newTimeFormat)
+                                  updateTime(newTimeFormat)
+                                }}
+                                className="w-full h-9 focus:ring-2 focus:ring-blue-500/50 focus:shadow-lg focus:shadow-blue-500/25 transition-all"
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor={`ampm-${id}`} className="text-xs font-medium block mb-1">
+                                AM/PM
+                              </label>
+                              <Select
+                                value={timeFormat.ampm}
+                                onValueChange={(value) => {
+                                  const newTimeFormat = { ...timeFormat, ampm: value as "AM" | "PM" }
+                                  setTimeFormat(newTimeFormat)
+                                  updateTime(newTimeFormat)
+                                }}
+                              >
+                                <SelectTrigger
+                                  id={`ampm-${id}`}
+                                  className="w-full h-9 focus:ring-2 focus:ring-blue-500/50 focus:shadow-lg focus:shadow-blue-500/25 transition-all"
+                                >
+                                  <SelectValue placeholder="AM/PM" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="AM">AM</SelectItem>
+                                  <SelectItem value="PM">PM</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8 hover:scale-110 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/25 hover:border-green-500/50"
+                onClick={() => onDateChange(id, new Date())}
+                title="Reset timer"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-4 w-4"
+                >
+                  <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                  <path d="M3 3v5h5" />
+                  <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+                  <path d="M16 21h5v-5" />
+                </svg>
+                <span className="sr-only">Reset timer</span>
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950 hover:scale-110 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/25"
+                onClick={() => onRemove(id)}
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="sr-only">Remove tracker</span>
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex justify-center gap-3 py-4 overflow-x-auto">
+            <div className="flex flex-col items-center">
+              <div className="flex">
+                <FlipDigit value={Math.floor(elapsed.years / 10)} />
+                <FlipDigit value={elapsed.years % 10} />
+              </div>
+              <span className="text-xs text-slate-500 mt-1">years</span>
+            </div>
+
+            <div className="flex flex-col items-center">
+              <div className="flex">
+                <FlipDigit value={Math.floor(elapsed.months / 10)} />
+                <FlipDigit value={elapsed.months % 10} />
+              </div>
+              <span className="text-xs text-slate-500 mt-1">months</span>
+            </div>
+
+            <div className="flex flex-col items-center">
+              <div className="flex">
+                <FlipDigit value={Math.floor(elapsed.days / 10)} />
+                <FlipDigit value={elapsed.days % 10} />
+              </div>
+              <span className="text-xs text-slate-500 mt-1">days</span>
+            </div>
+
+            <div className="flex flex-col items-center">
+              <div className="flex">
+                <FlipDigit value={Math.floor(elapsed.hours / 10)} />
+                <FlipDigit value={elapsed.hours % 10} />
+              </div>
+              <span className="text-xs text-slate-500 mt-1">hours</span>
+            </div>
+
+            <div className="flex flex-col items-center">
+              <div className="flex">
+                <FlipDigit value={Math.floor(elapsed.minutes / 10)} />
+                <FlipDigit value={elapsed.minutes % 10} />
+              </div>
+              <span className="text-xs text-slate-500 mt-1">minutes</span>
+            </div>
+
+            <div className="flex flex-col items-center">
+              <div className="flex">
+                <FlipDigit value={Math.floor(elapsed.seconds / 10)} />
+                <FlipDigit value={elapsed.seconds % 10} />
+              </div>
+              <span className="text-xs text-slate-500 mt-1">seconds</span>
+            </div>
+          </div>
+
+          <div className="text-sm text-slate-500 dark:text-slate-400 text-center">
+            Started on {startDate.toLocaleDateString()} at{" "}
+            {startDate.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true })}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
