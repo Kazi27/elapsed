@@ -410,7 +410,13 @@ export default function TimeSincePage() {
               Sign Out
             </Button>
           </div>
-          <h1 className="text-4xl font-bold mb-2 text-slate-800 dark:text-slate-100 drop-shadow-sm">E-lapsed</h1>
+          <div className="relative inline-block">
+            <h1 className="text-4xl font-bold mb-2 text-slate-800 dark:text-slate-100 drop-shadow-sm relative z-10 animate-logo-glow bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent hover:scale-105 transition-transform duration-300 cursor-default">
+              E-lapsed
+            </h1>
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-indigo-400/20 blur-xl animate-pulse-slow"></div>
+            <div className="absolute -inset-2 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-indigo-500/10 rounded-lg blur-lg animate-float"></div>
+          </div>
           <p className="text-slate-600 dark:text-slate-400">Track how much time has passed since important events</p>
 
           {trackers.length > 1 && (

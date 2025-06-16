@@ -92,7 +92,12 @@ export function AuthForm() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">E-lapsed</CardTitle>
+          <div className="relative inline-block mb-2">
+            <CardTitle className="text-2xl relative z-10 animate-logo-glow bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+              E-lapsed
+            </CardTitle>
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-indigo-400/20 blur-lg animate-pulse-slow"></div>
+          </div>
           <CardDescription>Sign in to save your time trackers</CardDescription>
         </CardHeader>
         <CardContent>
