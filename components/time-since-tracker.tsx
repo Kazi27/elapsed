@@ -306,7 +306,7 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
                 >
                   <div className="space-y-4">
                     <div>
-                      <h4 className="text-sm font-medium mb-3 text-slate-900 dark:text-slate-100">Date</h4>
+                      <h4 className="text-sm font-medium mb-3 text-black">Date</h4>
                       <div className="grid grid-cols-3 gap-2">
                         <div>
                           <label className="text-xs font-medium block mb-1 text-black">Year</label>
@@ -378,7 +378,7 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
                     </div>
 
                     <div className="border-t pt-4">
-                      <h4 className="text-sm font-medium mb-3 text-slate-900 dark:text-slate-100">Time</h4>
+                      <h4 className="text-sm font-medium mb-3 text-black">Time</h4>
                       <div className="grid grid-cols-3 gap-2">
                         <div>
                           <label className="text-xs font-medium block mb-1 text-black">Hour</label>
