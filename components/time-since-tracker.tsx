@@ -175,13 +175,13 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
   }
 
   const handleShare = async () => {
-    const shareText = `🕐 It's been ${formatElapsedTime()} since "${name}"!\n\nStarted on ${startDate.toLocaleDateString()} at ${startDate.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true })}\n\nShared from Time Since ⏰`
+    const shareText = `🕐 It's been ${formatElapsedTime()} since "${name}"!\n\nStarted on ${startDate.toLocaleDateString()} at ${startDate.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true })}\n\nShared from Elapsed ⏰`
 
     // Check if Web Share API is supported (mainly mobile devices)
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Time Since: ${name}`,
+          title: `Elapsed: ${name}`,
           text: shareText,
         })
 

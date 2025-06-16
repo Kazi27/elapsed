@@ -410,7 +410,7 @@ export default function TimeSincePage() {
               Sign Out
             </Button>
           </div>
-          <h1 className="text-4xl font-bold mb-2 text-slate-800 dark:text-slate-100 drop-shadow-sm">Time Since</h1>
+          <h1 className="text-4xl font-bold mb-2 text-slate-800 dark:text-slate-100 drop-shadow-sm">Elapsed</h1>
           <p className="text-slate-600 dark:text-slate-400">Track how much time has passed since important events</p>
 
           {trackers.length > 1 && (
