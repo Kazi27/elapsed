@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { FlipDigit } from "@/components/flip-digit"
 import { useToast } from "@/hooks/use-toast"
@@ -54,19 +53,23 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
   }
 
   const { hours: hours12, ampm } = get12HourTime(startDate)
-  const [timeFormat, setTimeFormat] = useState({
+  const [dateTimeFormat, setDateTimeFormat] = useState({
+    year: startDate.getFullYear(),
+    month: startDate.getMonth() + 1, // JavaScript months are 0-indexed
+    day: startDate.getDate(),
     hours: hours12,
     minutes: startDate.getMinutes(),
-    seconds: startDate.getSeconds(),
     ampm: ampm,
   })
 
   useEffect(() => {
     const { hours: newHours12, ampm: newAmPm } = get12HourTime(startDate)
-    setTimeFormat({
+    setDateTimeFormat({
+      year: startDate.getFullYear(),
+      month: startDate.getMonth() + 1,
+      day: startDate.getDate(),
       hours: newHours12,
       minutes: startDate.getMinutes(),
-      seconds: startDate.getSeconds(),
       ampm: newAmPm,
     })
   }, [startDate])
@@ -123,17 +126,17 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
     }
   }
 
-  const updateTime = (newTimeFormat: typeof timeFormat) => {
+  const updateDateTime = (newDateTime: typeof dateTimeFormat) => {
     // Convert 12-hour format back to 24-hour format
-    let hours24 = newTimeFormat.hours
-    if (newTimeFormat.ampm === "PM" && hours24 < 12) {
+    let hours24 = newDateTime.hours
+    if (newDateTime.ampm === "PM" && hours24 < 12) {
       hours24 += 12
-    } else if (newTimeFormat.ampm === "AM" && hours24 === 12) {
+    } else if (newDateTime.ampm === "AM" && hours24 === 12) {
       hours24 = 0
     }
 
-    const newDate = new Date(startDate)
-    newDate.setHours(hours24, newTimeFormat.minutes, newTimeFormat.seconds)
+    // Create new date
+    const newDate = new Date(newDateTime.year, newDateTime.month - 1, newDateTime.day, hours24, newDateTime.minutes, 0)
     onDateChange(id, newDate)
   }
 
@@ -222,6 +225,30 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
     }
   }
 
+  // Generate arrays for dropdowns
+  const currentYear = new Date().getFullYear()
+  const years = Array.from({ length: 50 }, (_, i) => currentYear - 25 + i)
+  const months = [
+    { value: 1, label: "January" },
+    { value: 2, label: "February" },
+    { value: 3, label: "March" },
+    { value: 4, label: "April" },
+    { value: 5, label: "May" },
+    { value: 6, label: "June" },
+    { value: 7, label: "July" },
+    { value: 8, label: "August" },
+    { value: 9, label: "September" },
+    { value: 10, label: "October" },
+    { value: 11, label: "November" },
+    { value: 12, label: "December" },
+  ]
+  const getDaysInMonth = (year: number, month: number) => {
+    return new Date(year, month, 0).getDate()
+  }
+  const days = Array.from({ length: getDaysInMonth(dateTimeFormat.year, dateTimeFormat.month) }, (_, i) => i + 1)
+  const hours = Array.from({ length: 12 }, (_, i) => i + 1)
+  const minutes = Array.from({ length: 60 }, (_, i) => i)
+
   return (
     <Card className="overflow-hidden border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-500 hover:translate-y-[-4px] hover:border-blue-500/30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm w-full">
       <CardContent className="p-6">
@@ -270,138 +297,163 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent
-                  className="w-80 p-0 z-[99999]"
+                  className="w-80 p-4 z-[99999]"
                   align="end"
                   side="top"
                   sideOffset={8}
                   avoidCollisions={true}
                   collisionPadding={20}
                 >
-                  <div className="max-h-[80vh] overflow-y-auto">
-                    <div className="p-4 space-y-4">
-                      <div>
-                        <h4 className="text-sm font-medium mb-3 text-slate-900 dark:text-slate-100">Date</h4>
-                        <div className="border rounded-lg p-2 bg-white dark:bg-slate-800">
-                          <CalendarComponent
-                            mode="single"
-                            selected={startDate}
-                            onSelect={(date) => {
-                              if (date) {
-                                const newDate = new Date(startDate)
-                                newDate.setFullYear(date.getFullYear(), date.getMonth(), date.getDate())
-                                onDateChange(id, newDate)
-                              }
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="text-sm font-medium mb-3 text-slate-900 dark:text-slate-100">Date</h4>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div>
+                          <label className="text-xs font-medium block mb-1 text-slate-700 dark:text-slate-300">
+                            Year
+                          </label>
+                          <Select
+                            value={dateTimeFormat.year.toString()}
+                            onValueChange={(value) => {
+                              const newDateTime = { ...dateTimeFormat, year: Number.parseInt(value) }
+                              setDateTimeFormat(newDateTime)
+                              updateDateTime(newDateTime)
                             }}
-                            initialFocus
-                            className="rounded-md border-0"
-                            captionLayout="dropdown-buttons"
-                            fromYear={1900}
-                            toYear={2030}
-                          />
+                          >
+                            <SelectTrigger className="h-9">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="z-[99999] max-h-48">
+                              {years.map((year) => (
+                                <SelectItem key={year} value={year.toString()}>
+                                  {year}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium block mb-1 text-slate-700 dark:text-slate-300">
+                            Month
+                          </label>
+                          <Select
+                            value={dateTimeFormat.month.toString()}
+                            onValueChange={(value) => {
+                              const newDateTime = { ...dateTimeFormat, month: Number.parseInt(value) }
+                              setDateTimeFormat(newDateTime)
+                              updateDateTime(newDateTime)
+                            }}
+                          >
+                            <SelectTrigger className="h-9">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="z-[99999]">
+                              {months.map((month) => (
+                                <SelectItem key={month.value} value={month.value.toString()}>
+                                  {month.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium block mb-1 text-slate-700 dark:text-slate-300">
+                            Day
+                          </label>
+                          <Select
+                            value={dateTimeFormat.day.toString()}
+                            onValueChange={(value) => {
+                              const newDateTime = { ...dateTimeFormat, day: Number.parseInt(value) }
+                              setDateTimeFormat(newDateTime)
+                              updateDateTime(newDateTime)
+                            }}
+                          >
+                            <SelectTrigger className="h-9">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="z-[99999] max-h-48">
+                              {days.map((day) => (
+                                <SelectItem key={day} value={day.toString()}>
+                                  {day}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
+                    </div>
 
-                      <div className="border-t pt-4">
-                        <h4 className="text-sm font-medium mb-3 text-slate-900 dark:text-slate-100">Time</h4>
-                        <div className="space-y-3">
-                          <div className="grid grid-cols-2 gap-3">
-                            <div>
-                              <label
-                                htmlFor={`hours-${id}`}
-                                className="text-xs font-medium block mb-1 text-slate-700 dark:text-slate-300"
-                              >
-                                Hours
-                              </label>
-                              <Input
-                                id={`hours-${id}`}
-                                type="number"
-                                min="1"
-                                max="12"
-                                value={timeFormat.hours}
-                                onChange={(e) => {
-                                  const hours = Math.min(12, Math.max(1, Number.parseInt(e.target.value) || 1))
-                                  const newTimeFormat = { ...timeFormat, hours }
-                                  setTimeFormat(newTimeFormat)
-                                  updateTime(newTimeFormat)
-                                }}
-                                className="w-full h-9 focus:ring-2 focus:ring-blue-500/50 focus:shadow-lg focus:shadow-blue-500/25 transition-all"
-                              />
-                            </div>
-                            <div>
-                              <label
-                                htmlFor={`minutes-${id}`}
-                                className="text-xs font-medium block mb-1 text-slate-700 dark:text-slate-300"
-                              >
-                                Minutes
-                              </label>
-                              <Input
-                                id={`minutes-${id}`}
-                                type="number"
-                                min="0"
-                                max="59"
-                                value={timeFormat.minutes}
-                                onChange={(e) => {
-                                  const minutes = Math.min(59, Math.max(0, Number.parseInt(e.target.value) || 0))
-                                  const newTimeFormat = { ...timeFormat, minutes }
-                                  setTimeFormat(newTimeFormat)
-                                  updateTime(newTimeFormat)
-                                }}
-                                className="w-full h-9 focus:ring-2 focus:ring-blue-500/50 focus:shadow-lg focus:shadow-blue-500/25 transition-all"
-                              />
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-3">
-                            <div>
-                              <label
-                                htmlFor={`seconds-${id}`}
-                                className="text-xs font-medium block mb-1 text-slate-700 dark:text-slate-300"
-                              >
-                                Seconds
-                              </label>
-                              <Input
-                                id={`seconds-${id}`}
-                                type="number"
-                                min="0"
-                                max="59"
-                                value={timeFormat.seconds}
-                                onChange={(e) => {
-                                  const seconds = Math.min(59, Math.max(0, Number.parseInt(e.target.value) || 0))
-                                  const newTimeFormat = { ...timeFormat, seconds }
-                                  setTimeFormat(newTimeFormat)
-                                  updateTime(newTimeFormat)
-                                }}
-                                className="w-full h-9 focus:ring-2 focus:ring-blue-500/50 focus:shadow-lg focus:shadow-blue-500/25 transition-all"
-                              />
-                            </div>
-                            <div>
-                              <label
-                                htmlFor={`ampm-${id}`}
-                                className="text-xs font-medium block mb-1 text-slate-700 dark:text-slate-300"
-                              >
-                                AM/PM
-                              </label>
-                              <Select
-                                value={timeFormat.ampm}
-                                onValueChange={(value) => {
-                                  const newTimeFormat = { ...timeFormat, ampm: value as "AM" | "PM" }
-                                  setTimeFormat(newTimeFormat)
-                                  updateTime(newTimeFormat)
-                                }}
-                              >
-                                <SelectTrigger
-                                  id={`ampm-${id}`}
-                                  className="w-full h-9 focus:ring-2 focus:ring-blue-500/50 focus:shadow-lg focus:shadow-blue-500/25 transition-all"
-                                >
-                                  <SelectValue placeholder="AM/PM" />
-                                </SelectTrigger>
-                                <SelectContent className="z-[99999]">
-                                  <SelectItem value="AM">AM</SelectItem>
-                                  <SelectItem value="PM">PM</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
+                    <div className="border-t pt-4">
+                      <h4 className="text-sm font-medium mb-3 text-slate-900 dark:text-slate-100">Time</h4>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div>
+                          <label className="text-xs font-medium block mb-1 text-slate-700 dark:text-slate-300">
+                            Hour
+                          </label>
+                          <Select
+                            value={dateTimeFormat.hours.toString()}
+                            onValueChange={(value) => {
+                              const newDateTime = { ...dateTimeFormat, hours: Number.parseInt(value) }
+                              setDateTimeFormat(newDateTime)
+                              updateDateTime(newDateTime)
+                            }}
+                          >
+                            <SelectTrigger className="h-9">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="z-[99999]">
+                              {hours.map((hour) => (
+                                <SelectItem key={hour} value={hour.toString()}>
+                                  {hour}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium block mb-1 text-slate-700 dark:text-slate-300">
+                            Minute
+                          </label>
+                          <Select
+                            value={dateTimeFormat.minutes.toString()}
+                            onValueChange={(value) => {
+                              const newDateTime = { ...dateTimeFormat, minutes: Number.parseInt(value) }
+                              setDateTimeFormat(newDateTime)
+                              updateDateTime(newDateTime)
+                            }}
+                          >
+                            <SelectTrigger className="h-9">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="z-[99999] max-h-48">
+                              {minutes.map((minute) => (
+                                <SelectItem key={minute} value={minute.toString()}>
+                                  {minute.toString().padStart(2, "0")}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium block mb-1 text-slate-700 dark:text-slate-300">
+                            AM/PM
+                          </label>
+                          <Select
+                            value={dateTimeFormat.ampm}
+                            onValueChange={(value) => {
+                              const newDateTime = { ...dateTimeFormat, ampm: value as "AM" | "PM" }
+                              setDateTimeFormat(newDateTime)
+                              updateDateTime(newDateTime)
+                            }}
+                          >
+                            <SelectTrigger className="h-9">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="z-[99999]">
+                              <SelectItem value="AM">AM</SelectItem>
+                              <SelectItem value="PM">PM</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
                     </div>
@@ -499,7 +551,7 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
 
           <div className="text-sm text-slate-500 dark:text-slate-400 text-center">
             Started on {startDate.toLocaleDateString()} at{" "}
-            {startDate.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true })}
+            {startDate.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true })}
           </div>
         </div>
       </CardContent>
