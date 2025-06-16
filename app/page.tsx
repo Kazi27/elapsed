@@ -452,7 +452,7 @@ export default function TimeSincePage() {
           <Button
             onClick={addNewTracker}
             variant="outline"
-            className="flex items-center gap-2 mx-auto mt-4 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/25 hover:border-blue-500/50 hover:bg-blue-50/50 dark:hover:bg-blue-950/20"
+            className="flex items-center gap-2 mx-auto mt-4 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/25 hover:border-blue-500/50 text-slate-800 dark:text-slate-200 bg-white/80 dark:bg-slate-800/80 hover:bg-blue-50 dark:hover:bg-blue-950/30"
           >
             <PlusCircle className="h-4 w-4" />
             Add new tracker

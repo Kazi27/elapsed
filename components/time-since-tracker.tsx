@@ -234,12 +234,12 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
                 onChange={(e) => setEditingName(e.target.value)}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
-                className="font-medium text-lg"
+                className="font-medium text-lg text-slate-900 dark:text-white"
                 placeholder="Enter event name"
               />
             ) : (
               <h2
-                className="font-medium text-lg cursor-pointer hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                className="font-medium text-lg cursor-pointer hover:text-slate-600 dark:hover:text-slate-300 transition-colors text-slate-900 dark:text-white"
                 onClick={handleEditClick}
               >
                 {name}
@@ -270,7 +270,7 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent
-                  className="w-80 p-0 z-[9999]"
+                  className="w-80 p-0 z-[99999]"
                   align="end"
                   side="top"
                   sideOffset={8}
@@ -378,7 +378,7 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
                                 >
                                   <SelectValue placeholder="AM/PM" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="z-[99999]">
                                   <SelectItem value="AM">AM</SelectItem>
                                   <SelectItem value="PM">PM</SelectItem>
                                 </SelectContent>
