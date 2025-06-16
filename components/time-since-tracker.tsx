@@ -261,7 +261,7 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
                 onChange={(e) => setEditingName(e.target.value)}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
-                className="font-medium text-lg text-slate-900 dark:text-white"
+                className="font-medium text-lg text-black"
                 placeholder="Enter event name"
               />
             ) : (
