@@ -309,7 +309,7 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
                       <h4 className="text-sm font-medium mb-3 text-slate-900 dark:text-slate-100">Date</h4>
                       <div className="grid grid-cols-3 gap-2">
                         <div>
-                          <label className="text-xs font-medium block mb-1 text-slate-900 dark:text-white">Year</label>
+                          <label className="text-xs font-medium block mb-1 text-black">Year</label>
                           <Select
                             value={dateTimeFormat.year.toString()}
                             onValueChange={(value) => {
@@ -331,7 +331,7 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
                           </Select>
                         </div>
                         <div>
-                          <label className="text-xs font-medium block mb-1 text-slate-900 dark:text-white">Month</label>
+                          <label className="text-xs font-medium block mb-1 text-black">Month</label>
                           <Select
                             value={dateTimeFormat.month.toString()}
                             onValueChange={(value) => {
@@ -353,7 +353,7 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
                           </Select>
                         </div>
                         <div>
-                          <label className="text-xs font-medium block mb-1 text-slate-900 dark:text-white">Day</label>
+                          <label className="text-xs font-medium block mb-1 text-black">Day</label>
                           <Select
                             value={dateTimeFormat.day.toString()}
                             onValueChange={(value) => {
@@ -381,7 +381,7 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
                       <h4 className="text-sm font-medium mb-3 text-slate-900 dark:text-slate-100">Time</h4>
                       <div className="grid grid-cols-3 gap-2">
                         <div>
-                          <label className="text-xs font-medium block mb-1 text-slate-900 dark:text-white">Hour</label>
+                          <label className="text-xs font-medium block mb-1 text-black">Hour</label>
                           <Select
                             value={dateTimeFormat.hours.toString()}
                             onValueChange={(value) => {
@@ -403,9 +403,7 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
                           </Select>
                         </div>
                         <div>
-                          <label className="text-xs font-medium block mb-1 text-slate-900 dark:text-white">
-                            Minute
-                          </label>
+                          <label className="text-xs font-medium block mb-1 text-black">Minute</label>
                           <Select
                             value={dateTimeFormat.minutes.toString()}
                             onValueChange={(value) => {
@@ -427,7 +425,7 @@ export function TimeSinceTracker({ id, name, startDate, onNameChange, onDateChan
                           </Select>
                         </div>
                         <div>
-                          <label className="text-xs font-medium block mb-1 text-slate-900 dark:text-white">AM/PM</label>
+                          <label className="text-xs font-medium block mb-1 text-black">AM/PM</label>
                           <Select
                             value={dateTimeFormat.ampm}
                             onValueChange={(value) => {
